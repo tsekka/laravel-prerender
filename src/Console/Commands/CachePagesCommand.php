@@ -59,7 +59,11 @@ class CachePagesCommand extends Command
             ->toArray();
 
         $this->logStatus('STARTING');
-        $this->startProcess();
+        if ($this->startProcess() === false) {
+            $this->logStatus('FAILED_TO_START_PROCESS');
+            $this->error('Failed to start the preredering server.');
+            return;
+        };
         $this->logStatus('STARTED');
 
         foreach ($this->urls() as $fullUrl) {
@@ -153,11 +157,11 @@ class CachePagesCommand extends Command
     /**
      * Start the process of node server
      *
-     * @return void
+     * @return null|bool
      */
-    private function startProcess(): void
+    private function startProcess(): ?bool
     {
-        if (!$this->runServer) return;
+        if (!$this->runServer) return null;
 
         $this->process = new Process(
             ['node',  'server.js'],
@@ -178,8 +182,10 @@ class CachePagesCommand extends Command
                 continue;
 
             $this->info('Prerenderer service started.');
-            return;
+            return true;
         }
+
+        return false;
     }
 
     /**

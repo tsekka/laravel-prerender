@@ -145,7 +145,7 @@ return [
     |
     */
 
-    'run_server_by_command' => env('PRERENDER_RUN_SERVER_BY_COMMAND', true),
+    'run_server_by_command' => env('PRERENDER_RUN_SERVER_BY_COMMAND', false),
 
 
     /*

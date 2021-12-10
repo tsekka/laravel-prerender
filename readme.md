@@ -113,8 +113,6 @@ Each time crawler visits the url that matches all requirements for it to be prer
 So by default, before you actually start using the package, the list will be empty and the urls will be prerendered at the time of request (and therefore the request time could be quite slow, as prerendering takes time). 
 
 If you would like to cache the pages only <a href='#on-demand'>on demand</a> or you would like to keep response time low even on first crawler visit, then you should provide a class & method name that returns array of of urls by publishing config file and modifying it's `cacheable_urls` value.
-        
-## <a id='run-server-by-command'></a> Starting prerender service on-demand
 
 ## <a id='pruning'></a> Pruning old entries
 The package logs all crawler visits into database. 
