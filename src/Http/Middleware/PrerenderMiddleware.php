@@ -79,6 +79,11 @@ class PrerenderMiddleware
             return $cachedResponse;
         }
 
+        if (config('prerender.run_local_server')) {
+            $this->recordCrawlerVisit();
+            return $next($request);
+        }
+
         $prerenderedResponse = $this->getPrerenderedPageResponse($request);
         if (!$prerenderedResponse) {
             $this->status = 'PRERENDER_RESPONSE_MISSING';
