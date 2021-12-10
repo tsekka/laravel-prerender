@@ -72,7 +72,7 @@ Prerender.io has open-sourced [node server](https://github.com/prerender/prerend
 Here's how you can make use of it:
 1. Install and run prerenderer's node server. 
    * We've icluded working copy in this package's directory for you co clone (`cp -r ./vendor/tsekka/prerender/prerenderer ./prerenderer`) and set up by following a [our quick tutorial for Debian-based Linux distributions](/prerenderer/readme.md).
-   * You could also set it up by following [full instructions](https://github.com/prerender/prerender).
+   * [Full instructions](https://github.com/prerender/prerender) of prerendering node server.
 2. Set prerenderer's url to url of your prerenderer's service. Eg. if you're running it locally, then add `PRERENDER_URL=http://localhost:3000` to your .env file.
 3. Decide if you will keep the prerender server constantly running or if you would rather start the server for the duration of <a href='#caching-schedule'>schedule command</a>.
     - If you will keep the server constantly running, then make sure that the node server will re-start even after webserver is rebooted.
