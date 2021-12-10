@@ -18,6 +18,11 @@ class PrerenderCacheLog extends Model
         'data' => 'array',
     ];
 
+    public function getDataAttribute($value)
+    {
+        return json_decode($value ?? '[]', true);
+    }
+
     public function crawlerVisits(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->HasMany(CrawlerVisit::class);

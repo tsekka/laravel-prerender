@@ -16,7 +16,7 @@ class CreatePrerenderCacheLogsTable extends Migration
         Schema::create('prerender_cache_logs', function (Blueprint $table) {
             $table->id();
             $table->string('status')->nullable();
-            $table->json('content')->default('[]');
+            $table->json('content')->nullable();
             $table->timestamps();
         });
     }
