@@ -256,6 +256,9 @@ class CachePagesCommand extends Command
         if ($this->force || !in_array($url, $this->unexpiredPrerenderedUrls))
             return true;
 
+        if (!Prerender::cache()->has(Prerender::cacheKey($url)))
+            return true;
+
         return false;
     }
 
