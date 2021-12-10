@@ -33,33 +33,6 @@ class CachePagesCommand extends Command
     private $process;
     private PrerenderCacheLog $log;
 
-
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->log = new PrerenderCacheLog();
-        $this->runServer = config('prerender.run_server_by_command');
-
-        $ttl = Prerender::cacheTtl();
-        if ($ttl && is_int($ttl)) {
-            $this->unexpiredPrerenderedUrls =
-                PrerenderedPage::where(
-                    'updated_at',
-                    '>=',
-                    Carbon::now()->subSeconds($ttl)
-                )
-                ->get()
-                ->pluck('url')
-                ->toArray();
-        }
-    }
-
     /**
      * Execute the console command.
      *
@@ -67,11 +40,23 @@ class CachePagesCommand extends Command
      */
     public function handle()
     {
-        $this->force = $this->option('force');
 
         if (!Prerender::cacheEnabled()) {
             throw new \Exception('Please enable cache.');
         }
+
+        $this->force = $this->option('force');
+        $this->runServer = config('prerender.run_server_by_command');
+        $this->log = new PrerenderCacheLog();
+        $this->unexpiredPrerenderedUrls =
+            PrerenderedPage::where(
+                'updated_at',
+                '>=',
+                Carbon::now()->subSeconds(Prerender::cacheTtl())
+            )
+            ->get()
+            ->pluck('url')
+            ->toArray();
 
         $this->logStatus('STARTING');
         $this->startProcess();
@@ -79,7 +64,7 @@ class CachePagesCommand extends Command
 
         foreach ($this->urls() as $fullUrl) {
             $url = str_replace(config('app.url'), '', $fullUrl);
-            
+
             if ($this->shouldRestartProcess()) {
                 $this->restartProcess();
             }
