@@ -54,13 +54,12 @@ or add middleware to specific routes:
   ```
 
 ## Prerendering by third party service
-
 ***By using prerender.io or similar service, you don't have to install node server and headless chrome by yourself.***
 
-The easiest way to start prerendering the pages for crawlers is by the pages can be done using third-party service like prerender.io.
+The primary use case of this package is to make it easier to run custom prerender server & cache it's responses. However, the easiest way to start prerendering the pages for crawlers is by using third-party service like prerender.io.
 
 1. Register at prerender.io or at another similar service and follow their instructions.
-2. Set prerenderer's url `PRERENDER_URL=https://service.prerender.io` (.env)
+2. Set prerenderer's url `PRERENDER_URL=https://service.prerender.io` and token `PRERENDER_TOKEN=YOUR-THIRD-PARTY-TOKEN` (add this in your .env file)
 3. Prerender.io already caches the pages for speed, so you can turn off local cache `PRERENDER_CACHE_TTL=null` (.env)
 4. <a href="#middleware">Register the middleware</a> and you're good to go!
 
