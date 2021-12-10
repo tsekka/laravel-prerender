@@ -1,0 +1,48 @@
+{
+    "name": "tsekka/prerender",
+    "description": "Prerender",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Kristjan Käärma",
+            "email": "pintek@pintek.ee",
+            "homepage": "https://www.pintek.ee"
+        },
+        {
+            "name": "Jeroen Noten",
+            "email": "jeroennoten@me.com"
+        }
+    ],
+    "homepage": "https://github.com/tsekka/prerender",
+    "keywords": [
+        "Laravel",
+        "Prerender"
+    ],
+    "require": {
+        "php": ">=8.0",
+        "illuminate/support": "~8",
+        "guzzlehttp/guzzle": "^7.0",
+        "symfony/psr-http-message-bridge": "^2.0",
+        "chrome-php/chrome": "^1.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~9.0",
+        "nunomaduro/larastan": "^1.0",
+        "barryvdh/laravel-ide-helper": "^2.10"
+    },
+    "autoload": {
+        "psr-4": {
+            "Tsekka\\Prerender\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Tsekka\\Prerender\\PrerenderServiceProvider"
+            ],
+            "aliases": {
+                "Prerender": "Tsekka\\Prerender\\Facades\\Prerender"
+            }
+        }
+    }
+}
