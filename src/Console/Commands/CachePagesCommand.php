@@ -218,7 +218,10 @@ class CachePagesCommand extends Command
 
         try {
             $this->warn('Restarting process...');
-            $this->startProcess();
+            if ($this->startProcess() === false) {
+                $this->error('Failed to restart the prerendering server.');
+                $this->logStatus('PROCESS_RESTART_FAILED');
+            }
             $this->warn('Process restarted.');
             $this->logStatus('PROCESS_RESTARTED');
         } catch (\Throwable $th) {
