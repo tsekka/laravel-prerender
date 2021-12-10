@@ -125,8 +125,7 @@ return [
     */
 
     'cacheable_urls' => [
-        // Tsekka\Prerender\Actions\GetCacheableUrls::class,
-        App\Overrides\Prerender\Actions\GetCacheableUrls::class,
+        Tsekka\Prerender\Actions\GetCacheableUrls::class,
         'handle'
     ], // handle method must return array
 
