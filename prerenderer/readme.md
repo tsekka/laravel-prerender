@@ -31,6 +31,9 @@ google-chrome-stable -version
    ```
    * run `supervisorctl stop all && supervisorctl reread && supervisorctl start all` as root user
 
+# Install dependencies
+`npm install`
+
 # Start server
 Run the server `node server.js` or `ALLOWED_DOMAINS="yoursite.com,yoursite.org" node server.js` to enable requests for specific domains only. Make sure to restart the service if server reboots.
 
