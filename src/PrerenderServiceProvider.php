@@ -29,6 +29,11 @@ class PrerenderServiceProvider extends ServiceProvider
 
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
 
+        if (in_array(config('app.env'), ['testing'])) {
+            $this->loadViewsFrom(__DIR__ . '/../tests/App/views', 'prerender');
+            $this->loadRoutesFrom(__DIR__ . '/../tests/App/routes.php');
+        }
+
         // Publishing is only necessary when using the CLI.
         if ($this->app->runningInConsole()) {
             $this->bootForConsole();
