@@ -61,7 +61,7 @@ class CachePagesCommand extends Command
         $this->logStatus('STARTING');
         if ($this->startProcess() === false) {
             $this->logStatus('FAILED_TO_START_PROCESS');
-            $this->error('Failed to start the preredering server.');
+            $this->error('Failed to start the prerendering server.');
             return;
         };
         $this->logStatus('STARTED');
