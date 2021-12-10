@@ -46,7 +46,7 @@ class CachePagesCommand extends Command
         }
 
         $this->force = $this->option('force');
-        $this->runServer = config('prerender.run_server_by_command');
+        $this->runServer = config('prerender.run_local_server');
         $this->log = new PrerenderCacheLog();
         $this->unexpiredPrerenderedUrls =
             PrerenderedPage::where(
@@ -165,7 +165,7 @@ class CachePagesCommand extends Command
 
         $this->process = new Process(
             ['node',  'server.js'],
-            __DIR__ . '/../../../prerenderer/',
+            config('prerender.local_server_path'),
             [ // ENV variables for server.js
                 'PORT' => config('prerender.prerenderer_service.port', 3000),
             ]
