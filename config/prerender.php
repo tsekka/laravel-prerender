@@ -126,8 +126,8 @@ return [
 
     'cacheable_urls' => [
         Tsekka\Prerender\Actions\GetCacheableUrls::class,
-        'handle'
-    ], // handle method must return array
+        'handle' // handle method must return array of full urls
+    ],
 
     /**
      * Set this to true if the `php artisan prerender:cache` command should
