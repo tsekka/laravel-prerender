@@ -70,16 +70,15 @@ Prerender.io has open-sourced [node server](https://github.com/prerender/prerend
 
 Here's how you can make use of it:
 1. Install and run prerenderer's node server. 
-   * We've icluded working copy in this package's directory for you co clone (`cp -r ./vendor/tsekka/prerender/prerenderer ./prerenderer`) and set up by following a [our quick tutorial for Debian-based Linux distributions](/prerenderer/readme.md).
-   * Install dependencies `cd prerenderer && npm install`
-   * [Full instructions](https://github.com/prerender/prerender) of prerendering node server.
+   * Clone it from this package's directory (`cp -r ./vendor/tsekka/prerender/prerenderer ./prerenderer`) and install dependencies `cd prerenderer && npm install`.
+   * You can also follow [this quick tutorial](/prerenderer/readme.md) which includes instructions how to install headless Chrome browser on Debian-based Linux distributions.
 2. Set prerenderer's url to url of your prerenderer's service. Eg. if you're running it locally, then add `PRERENDER_URL=http://localhost:3000` to your .env file.
 3. Decide if you will keep the prerender server constantly running or if you would rather start the server for the duration of <a href='#caching-schedule'>schedule command</a>.
     - If you will keep the server constantly running, then start the prerendering server `node server.js` and make sure that the node server will re-start even after webserver is rebooted.
     - If you would rather start the server only for the duration of prerender command, then set `PRERENDER_RUN_LOCAL_SERVER=true` in your .env file.
 4. <a href="#middleware">Register the middleware</a>
 5. Prerendering the page on-demand can be slow and therefore, by default the pages will be <a href='#caching'>cached</a>.
-6. It's recommended that you  <a href='#caching-schedule'>set up the schedule to re-cache</a> the prerendered pages.
+6. It's recommended that you <a href='#caching-schedule'>set up the schedule to re-cache</a> the prerendered pages.
 
 ### <a id='caching'></a> Caching prerendered responses
 Prerendering the page can take up to few seconds or even more. 
