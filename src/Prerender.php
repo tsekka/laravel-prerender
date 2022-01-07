@@ -2,10 +2,12 @@
 
 namespace Tsekka\Prerender;
 
-use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Facades\Cache;
+use GuzzleHttp\Psr7\Response as GuzzleResponse;
 use Illuminate\Cache\Repository as CacheRepository;
 use Tsekka\Prerender\Actions\RecordOrTouchPrerenderedPage;
+use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class Prerender
 {
@@ -42,7 +44,7 @@ class Prerender
         return true;
     }
 
-    public function cacheTheResponse(string $url, Response $response): bool
+    public function cacheTheResponse(string $url, SymfonyResponse $response): bool
     {
         if (!$this->cacheEnabled()) return false;
 
@@ -52,7 +54,7 @@ class Prerender
         return $this->cache->put($cacheKey, $response, $this->cacheTtl);
     }
 
-    public function getCachedResponse(string $url): Response|null
+    public function getCachedResponse(string $url): SymfonyResponse|null
     {
         if (
             $this->cacheEnabled()
@@ -61,5 +63,16 @@ class Prerender
             return $cached;
 
         return null;
+    }
+
+    /**
+     * Convert a Guzzle Response to a Symfony Response
+     *
+     * @param GuzzleResponse $prerenderedResponse
+     * @return SymfonyResponse
+     */
+    public function buildSymfonyResponseFromGuzzleResponse(GuzzleResponse $prerenderedResponse): SymfonyResponse
+    {
+        return (new HttpFoundationFactory)->createResponse($prerenderedResponse);
     }
 }

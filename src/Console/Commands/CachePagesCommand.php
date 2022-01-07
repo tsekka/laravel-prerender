@@ -151,7 +151,8 @@ class CachePagesCommand extends Command
             return 'SKIPPED_REDIRECT_STATUS_CODE:' . $httpStatusCode;
         }
 
-        $cached = Prerender::cacheTheResponse($url, $prerenderedResponse);
+        $symfonyResponse = Prerender::buildSymfonyResponseFromGuzzleResponse($prerenderedResponse);
+        $cached = Prerender::cacheTheResponse($url, $symfonyResponse);
         return $cached ? 'CACHED' : 'NOT_CACHED';
     }
     /**

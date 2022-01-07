@@ -8,7 +8,6 @@ use GuzzleHttp\Client as Guzzle;
 use Illuminate\Support\Facades\App;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
-use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class GetPrerenderedPageResponse
 {
@@ -58,6 +57,11 @@ class GetPrerenderedPageResponse
         $this->throwExceptions = config('prerender.throw_exceptions');
     }
 
+    /**
+     * Prerender the page and return the Guzzle Response
+     * 
+     * @return null|\GuzzleHttp\Psr7\Response
+     */
     public function handle(): ?Response
     {
         $headers = [

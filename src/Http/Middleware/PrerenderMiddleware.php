@@ -86,7 +86,7 @@ class PrerenderMiddleware
             return $next($request);
         }
 
-        $prerenderedResponse = $this->getPrerenderedPageResponse($request);
+        $prerenderedResponse = (new GetPrerenderedPageResponse($request))->handle();
         if (!$prerenderedResponse) {
             $this->status = 'PRERENDER_RESPONSE_MISSING';
             $this->recordCrawlerVisit();
@@ -107,11 +107,11 @@ class PrerenderMiddleware
             return Redirect::to(array_change_key_case($headers, CASE_LOWER)["location"][0], $this->httpStatusCode);
         }
 
-        $response = $this->buildSymfonyResponseFromGuzzleResponse($prerenderedResponse);
-        Prerender::cacheTheResponse($this->fullUrl, $response);
+        $symfonyResponse = Prerender::buildSymfonyResponseFromGuzzleResponse($prerenderedResponse);
+        Prerender::cacheTheResponse($this->fullUrl, $symfonyResponse);
         $this->status = 'PRERENDERED';
         $this->recordCrawlerVisit();
-        return $response;
+        return $symfonyResponse;
     }
 
 
@@ -139,27 +139,5 @@ class PrerenderMiddleware
         $this->matchingUserAgent = $action->matchingUserAgent;
 
         return $shouldShow;
-    }
-
-    /**
-     * Prerender the page and return the Guzzle Response
-     *
-     * @param Request $request
-     * @return ResponseInterface|null
-     */
-    private function getPrerenderedPageResponse(Request $request): ?ResponseInterface
-    {
-        return (new GetPrerenderedPageResponse($request))->handle();
-    }
-
-    /**
-     * Convert a Guzzle Response to a Symfony Response
-     *
-     * @param GuzzleResponse $prerenderedResponse
-     * @return SymfonyResponse
-     */
-    private function buildSymfonyResponseFromGuzzleResponse(GuzzleResponse $prerenderedResponse): SymfonyResponse
-    {
-        return (new HttpFoundationFactory)->createResponse($prerenderedResponse);
     }
 }
