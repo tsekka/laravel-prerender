@@ -77,6 +77,8 @@ class PrerenderMiddleware
             $this->status = 'CACHE_HIT';
             $this->recordCrawlerVisit();
             return $cachedResponse;
+        } else {
+            $this->status = 'CACHE_MISSING';
         }
 
         if (config('prerender.run_local_server')) {
