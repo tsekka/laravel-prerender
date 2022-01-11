@@ -54,13 +54,12 @@ or add middleware to specific routes:
   ```
 
 ## Prerendering by third party service
-
 ***By using prerender.io or similar service, you don't have to install node server and headless chrome by yourself.***
 
-The easiest way to start prerendering the pages for crawlers is by the pages can be done using third-party service like prerender.io.
+The primary use case of this package is to make it easier to run custom prerender server & cache it's responses. However, the easiest way to start prerendering the pages for crawlers is by using third-party service like prerender.io.
 
 1. Register at prerender.io or at another similar service and follow their instructions.
-2. Set prerenderer's url `PRERENDER_URL=https://service.prerender.io` (.env)
+2. Set prerenderer's url `PRERENDER_URL=https://service.prerender.io` and token `PRERENDER_TOKEN=YOUR-THIRD-PARTY-TOKEN` (add this in your .env file)
 3. Prerender.io already caches the pages for speed, so you can turn off local cache `PRERENDER_CACHE_TTL=null` (.env)
 4. <a href="#middleware">Register the middleware</a> and you're good to go!
 
@@ -71,15 +70,15 @@ Prerender.io has open-sourced [node server](https://github.com/prerender/prerend
 
 Here's how you can make use of it:
 1. Install and run prerenderer's node server. 
-   * We've icluded working copy in this package's directory for you co clone (`cp -r ./vendor/tsekka/prerender/prerenderer ./prerenderer`) and set up by following a [our quick tutorial for Debian-based Linux distributions](/prerenderer/readme.md).
-   * You could also set it up by following [full instructions](https://github.com/prerender/prerender).
+   * Clone it from this package's directory (`cp -r ./vendor/tsekka/prerender/prerenderer ./prerenderer`) and install dependencies `cd prerenderer && npm install`.
+   * You can also follow [this quick tutorial](/prerenderer/readme.md) which includes instructions how to install headless Chrome browser on Debian-based Linux distributions.
 2. Set prerenderer's url to url of your prerenderer's service. Eg. if you're running it locally, then add `PRERENDER_URL=http://localhost:3000` to your .env file.
 3. Decide if you will keep the prerender server constantly running or if you would rather start the server for the duration of <a href='#caching-schedule'>schedule command</a>.
-    - If you will keep the server constantly running, then make sure that the node server will re-start even after webserver is rebooted.
-    - If you would rather start the server only for the duration of prerender command, then set `PRERENDER_RUN_SERVER_BY_COMMAND=true` in your .env file.
+    - If you will keep the server constantly running, then start the prerendering server `node server.js` and make sure that the node server will re-start even after webserver is rebooted.
+    - If you would rather start the server only for the duration of prerender command, then set `PRERENDER_RUN_LOCAL_SERVER=true` in your .env file.
 4. <a href="#middleware">Register the middleware</a>
 5. Prerendering the page on-demand can be slow and therefore, by default the pages will be <a href='#caching'>cached</a>.
-6. It's recommended that you  <a href='#caching-schedule'>set up the schedule to re-cache</a> the prerendered pages.
+6. It's recommended that you <a href='#caching-schedule'>set up the schedule to re-cache</a> the prerendered pages.
 
 ### <a id='caching'></a> Caching prerendered responses
 Prerendering the page can take up to few seconds or even more. 
@@ -113,8 +112,6 @@ Each time crawler visits the url that matches all requirements for it to be prer
 So by default, before you actually start using the package, the list will be empty and the urls will be prerendered at the time of request (and therefore the request time could be quite slow, as prerendering takes time). 
 
 If you would like to cache the pages only <a href='#on-demand'>on demand</a> or you would like to keep response time low even on first crawler visit, then you should provide a class & method name that returns array of of urls by publishing config file and modifying it's `cacheable_urls` value.
-        
-## <a id='run-server-by-command'></a> Starting prerender service on-demand
 
 ## <a id='pruning'></a> Pruning old entries
 The package logs all crawler visits into database. 

@@ -2,7 +2,6 @@
 
 namespace Tsekka\Prerender\Actions;
 
-use Illuminate\Support\Carbon;
 use Tsekka\Prerender\Models\CrawlerVisit;
 use Tsekka\Prerender\Models\PrerenderedPage;
 use Tsekka\Prerender\Actions\RecordOrTouchPrerenderedPage;
@@ -14,7 +13,6 @@ class RecordCrawlerVisit
     public function __construct(
         private ?string $url,
         private string $status,
-        private string $cacheKey,
         private ?int $http_status_code,
         private ?string $user_agent,
     ) {
@@ -34,7 +32,7 @@ class RecordCrawlerVisit
 
     private function prerenderedPage(): PrerenderedPage
     {
-        return (new RecordOrTouchPrerenderedPage($this->url, $this->cacheKey))
+        return (new RecordOrTouchPrerenderedPage($this->url))
             ->handle();
     }
 }

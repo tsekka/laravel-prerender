@@ -48,6 +48,32 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Cacheable urls class & method
+    |--------------------------------------------------------------------------
+    |
+    | Set this to true if the `php artisan prerender:cache` command should
+    | start the prerendering server. Should be set to false if you use
+    | third-party prerendering service or you keep the node server
+    | constantly running.
+    |
+    */
+
+    'run_local_server' => env('PRERENDER_RUN_LOCAL_SERVER', false),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Path to local prerenderer
+    |--------------------------------------------------------------------------
+    |
+    | Set the path full path to prerender node server file. `node server,.js`
+    | command will be run at this path to start the server. Has effect only
+    | if `run_local_server` is set to true.
+    |
+    */
+    'local_server_path' => base_path('prerenderer'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Return soft HTTP status codes
     |--------------------------------------------------------------------------
     |
@@ -126,26 +152,8 @@ return [
 
     'cacheable_urls' => [
         Tsekka\Prerender\Actions\GetCacheableUrls::class,
-        'handle'
-    ], // handle method must return array
-
-    /**
-     * Set this to true if the `php artisan prerender:cache` command should
-     */
-
-    /*
-    |--------------------------------------------------------------------------
-    | Cacheable urls class & method
-    |--------------------------------------------------------------------------
-    |
-    | Set this to true if the `php artisan prerender:cache` command should
-    | start the prerendering server. Should be set to false if you use
-    | third-party prerendering service or you keep the node server
-    | constantly running.
-    |
-    */
-
-    'run_server_by_command' => env('PRERENDER_RUN_SERVER_BY_COMMAND', true),
+        'handle' // handle method must return array of full urls
+    ],
 
 
     /*

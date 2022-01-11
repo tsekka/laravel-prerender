@@ -34,7 +34,6 @@ class PrerenderMiddleware
 
     private string $fullUrl;
     private string $status;
-    private string $cacheKey;
     private ?int $httpStatusCode = null;
 
     /**
@@ -67,7 +66,6 @@ class PrerenderMiddleware
             return $next($request);
 
         $this->fullUrl = $request->fullUrl();
-        $this->cacheKey = Prerender::cacheKey($this->fullUrl);
 
         if (
             $cachedResponse = Prerender::getCachedResponse($this->fullUrl)
@@ -77,9 +75,16 @@ class PrerenderMiddleware
             $this->status = 'CACHE_HIT';
             $this->recordCrawlerVisit();
             return $cachedResponse;
+        } else {
+            $this->status = 'CACHE_MISSING';
         }
 
-        $prerenderedResponse = $this->getPrerenderedPageResponse($request);
+        if (config('prerender.run_local_server')) {
+            $this->recordCrawlerVisit();
+            return $next($request);
+        }
+
+        $prerenderedResponse = (new GetPrerenderedPageResponse($request))->handle();
         if (!$prerenderedResponse) {
             $this->status = 'PRERENDER_RESPONSE_MISSING';
             $this->recordCrawlerVisit();
@@ -100,11 +105,11 @@ class PrerenderMiddleware
             return Redirect::to(array_change_key_case($headers, CASE_LOWER)["location"][0], $this->httpStatusCode);
         }
 
-        $response = $this->buildSymfonyResponseFromGuzzleResponse($prerenderedResponse);
-        Prerender::cacheTheResponse($this->fullUrl, $response);
+        $symfonyResponse = Prerender::buildSymfonyResponseFromGuzzleResponse($prerenderedResponse);
+        Prerender::cacheTheResponse($this->fullUrl, $symfonyResponse);
         $this->status = 'PRERENDERED';
         $this->recordCrawlerVisit();
-        return $response;
+        return $symfonyResponse;
     }
 
 
@@ -113,7 +118,6 @@ class PrerenderMiddleware
         (new RecordCrawlerVisit(
             $this->fullUrl,
             $this->status, // our status
-            $this->cacheKey, // used to get
             $this->httpStatusCode, // http status code
             $this->matchingUserAgent
         ))->handle();
@@ -132,27 +136,5 @@ class PrerenderMiddleware
         $this->matchingUserAgent = $action->matchingUserAgent;
 
         return $shouldShow;
-    }
-
-    /**
-     * Prerender the page and return the Guzzle Response
-     *
-     * @param Request $request
-     * @return ResponseInterface|null
-     */
-    private function getPrerenderedPageResponse(Request $request): ?ResponseInterface
-    {
-        return (new GetPrerenderedPageResponse($request))->handle();
-    }
-
-    /**
-     * Convert a Guzzle Response to a Symfony Response
-     *
-     * @param GuzzleResponse $prerenderedResponse
-     * @return SymfonyResponse
-     */
-    private function buildSymfonyResponseFromGuzzleResponse(GuzzleResponse $prerenderedResponse): SymfonyResponse
-    {
-        return (new HttpFoundationFactory)->createResponse($prerenderedResponse);
     }
 }

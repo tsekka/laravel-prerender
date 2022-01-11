@@ -2,10 +2,13 @@
 
 namespace Tsekka\Prerender;
 
-use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Facades\Cache;
+use Tsekka\Prerender\Models\PrerenderedPage;
+use GuzzleHttp\Psr7\Response as GuzzleResponse;
 use Illuminate\Cache\Repository as CacheRepository;
 use Tsekka\Prerender\Actions\RecordOrTouchPrerenderedPage;
+use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 
 class Prerender
 {
@@ -21,9 +24,9 @@ class Prerender
         $this->cacheTtl = config('prerender.cache');
     }
 
-    public function cacheKey($url)
+    public function cacheKey(PrerenderedPage $prerenderedPage): string
     {
-        return 'prerender-' . $url;
+        return 'prerender-' . $prerenderedPage->id;
     }
 
     public function cache(): ?CacheRepository
@@ -42,24 +45,37 @@ class Prerender
         return true;
     }
 
-    public function cacheTheResponse(string $url, Response $response): bool
+    public function cacheTheResponse(string $url, SymfonyResponse $response): bool
     {
         if (!$this->cacheEnabled()) return false;
 
-        $cacheKey = $this->cacheKey($url);
-        (new RecordOrTouchPrerenderedPage($url, $cacheKey))
+        $prerenderedPage = (new RecordOrTouchPrerenderedPage($url))
             ->handle();
+
+        $cacheKey = $this->cacheKey($prerenderedPage);
+
         return $this->cache->put($cacheKey, $response, $this->cacheTtl);
     }
 
-    public function getCachedResponse(string $url): Response|null
+    public function getCachedResponse(string $url): SymfonyResponse|null
     {
-        if (
-            $this->cacheEnabled()
-            && $cached = $this->cache->get($this->cacheKey($url))
-        )
-            return $cached;
+        if (!$this->cacheEnabled()) return null;
 
-        return null;
+        $prerenderedPage = PrerenderedPage::where('url', $url)->first();
+        if (!$prerenderedPage) return null;
+
+        $cached = $this->cache->get($this->cacheKey($prerenderedPage));
+        return $cached ?? null;
+    }
+
+    /**
+     * Convert a Guzzle Response to a Symfony Response
+     *
+     * @param GuzzleResponse $prerenderedResponse
+     * @return SymfonyResponse
+     */
+    public function buildSymfonyResponseFromGuzzleResponse(GuzzleResponse $prerenderedResponse): SymfonyResponse
+    {
+        return (new HttpFoundationFactory)->createResponse($prerenderedResponse);
     }
 }

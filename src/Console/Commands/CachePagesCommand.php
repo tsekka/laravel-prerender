@@ -33,33 +33,6 @@ class CachePagesCommand extends Command
     private $process;
     private PrerenderCacheLog $log;
 
-
-    /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->log = new PrerenderCacheLog();
-        $this->runServer = config('prerender.run_server_by_command');
-
-        $ttl = Prerender::cacheTtl();
-        if ($ttl && is_int($ttl)) {
-            $this->unexpiredPrerenderedUrls =
-                PrerenderedPage::where(
-                    'updated_at',
-                    '>=',
-                    Carbon::now()->subSeconds($ttl)
-                )
-                ->get()
-                ->pluck('url')
-                ->toArray();
-        }
-    }
-
     /**
      * Execute the console command.
      *
@@ -67,19 +40,35 @@ class CachePagesCommand extends Command
      */
     public function handle()
     {
-        $this->force = $this->option('force');
 
         if (!Prerender::cacheEnabled()) {
             throw new \Exception('Please enable cache.');
         }
 
+        $this->force = $this->option('force');
+        $this->runServer = config('prerender.run_local_server');
+        $this->log = new PrerenderCacheLog();
+        $this->unexpiredPrerenderedUrls =
+            PrerenderedPage::where(
+                'updated_at',
+                '>=',
+                Carbon::now()->subSeconds(Prerender::cacheTtl())
+            )
+            ->get()
+            ->pluck('url')
+            ->toArray();
+
         $this->logStatus('STARTING');
-        $this->startProcess();
+        if ($this->startProcess() === false) {
+            $this->logStatus('FAILED_TO_START_PROCESS');
+            $this->error('Failed to start the prerendering server.');
+            return;
+        };
         $this->logStatus('STARTED');
 
         foreach ($this->urls() as $fullUrl) {
             $url = str_replace(config('app.url'), '', $fullUrl);
-            
+
             if ($this->shouldRestartProcess()) {
                 $this->restartProcess();
             }
@@ -162,21 +151,22 @@ class CachePagesCommand extends Command
             return 'SKIPPED_REDIRECT_STATUS_CODE:' . $httpStatusCode;
         }
 
-        $cached = Prerender::cacheTheResponse($url, $prerenderedResponse);
+        $symfonyResponse = Prerender::buildSymfonyResponseFromGuzzleResponse($prerenderedResponse);
+        $cached = Prerender::cacheTheResponse($url, $symfonyResponse);
         return $cached ? 'CACHED' : 'NOT_CACHED';
     }
     /**
      * Start the process of node server
      *
-     * @return void
+     * @return null|bool
      */
-    private function startProcess(): void
+    private function startProcess(): ?bool
     {
-        if (!$this->runServer) return;
+        if (!$this->runServer) return null;
 
         $this->process = new Process(
             ['node',  'server.js'],
-            __DIR__ . '/../../../prerenderer/',
+            config('prerender.local_server_path'),
             [ // ENV variables for server.js
                 'PORT' => config('prerender.prerenderer_service.port', 3000),
             ]
@@ -193,8 +183,10 @@ class CachePagesCommand extends Command
                 continue;
 
             $this->info('Prerenderer service started.');
-            return;
+            return true;
         }
+
+        return false;
     }
 
     /**
@@ -227,7 +219,10 @@ class CachePagesCommand extends Command
 
         try {
             $this->warn('Restarting process...');
-            $this->startProcess();
+            if ($this->startProcess() === false) {
+                $this->error('Failed to restart the prerendering server.');
+                $this->logStatus('PROCESS_RESTART_FAILED');
+            }
             $this->warn('Process restarted.');
             $this->logStatus('PROCESS_RESTARTED');
         } catch (\Throwable $th) {
@@ -260,6 +255,11 @@ class CachePagesCommand extends Command
     private function shouldPrerenderAndCache(string $url): bool
     {
         if ($this->force || !in_array($url, $this->unexpiredPrerenderedUrls))
+            return true;
+
+        if (!Prerender::cache()->has(Prerender::cacheKey(
+            PrerenderedPage::where('url', $url)->first()
+        )))
             return true;
 
         return false;

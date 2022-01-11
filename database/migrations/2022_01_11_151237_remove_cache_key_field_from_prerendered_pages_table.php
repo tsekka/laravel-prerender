@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePrerenderCacheLogsTable extends Migration
+class RemoveCacheKeyFieldFromPrerenderedPagesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,8 @@ class CreatePrerenderCacheLogsTable extends Migration
      */
     public function up()
     {
-        Schema::create('prerender_cache_logs', function (Blueprint $table) {
-            $table->id();
-            $table->string('status')->nullable();
-            $table->json('content')->nullable();
-            $table->timestamps();
+        Schema::table('prerendered_pages', function (Blueprint $table) {
+            $table->dropColumn('cache_key');
         });
     }
 
@@ -28,6 +25,8 @@ class CreatePrerenderCacheLogsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('crawler_visits');
+        Schema::table('prerendered_pages', function (Blueprint $table) {
+            $table->string('cache_key');
+        });
     }
 }
