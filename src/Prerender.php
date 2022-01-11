@@ -3,6 +3,7 @@
 namespace Tsekka\Prerender;
 
 use Illuminate\Support\Facades\Cache;
+use Tsekka\Prerender\Models\PrerenderedPage;
 use GuzzleHttp\Psr7\Response as GuzzleResponse;
 use Illuminate\Cache\Repository as CacheRepository;
 use Tsekka\Prerender\Actions\RecordOrTouchPrerenderedPage;
@@ -23,9 +24,9 @@ class Prerender
         $this->cacheTtl = config('prerender.cache');
     }
 
-    public function cacheKey($url)
+    public function cacheKey(PrerenderedPage $prerenderedPage): string
     {
-        return 'prerender-' . $url;
+        return 'prerender-' . $prerenderedPage->id;
     }
 
     public function cache(): ?CacheRepository
@@ -48,21 +49,23 @@ class Prerender
     {
         if (!$this->cacheEnabled()) return false;
 
-        $cacheKey = $this->cacheKey($url);
-        (new RecordOrTouchPrerenderedPage($url, $cacheKey))
+        $prerenderedPage = (new RecordOrTouchPrerenderedPage($url))
             ->handle();
+
+        $cacheKey = $this->cacheKey($prerenderedPage);
+
         return $this->cache->put($cacheKey, $response, $this->cacheTtl);
     }
 
     public function getCachedResponse(string $url): SymfonyResponse|null
     {
-        if (
-            $this->cacheEnabled()
-            && $cached = $this->cache->get($this->cacheKey($url))
-        )
-            return $cached;
+        if (!$this->cacheEnabled()) return null;
 
-        return null;
+        $prerenderedPage = PrerenderedPage::where('url', $url)->first();
+        if (!$prerenderedPage) return null;
+
+        $cached = $this->cache->get($this->cacheKey($prerenderedPage));
+        return $cached ?? null;
     }
 
     /**

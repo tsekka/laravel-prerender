@@ -34,7 +34,6 @@ class PrerenderMiddleware
 
     private string $fullUrl;
     private string $status;
-    private string $cacheKey;
     private ?int $httpStatusCode = null;
 
     /**
@@ -67,7 +66,6 @@ class PrerenderMiddleware
             return $next($request);
 
         $this->fullUrl = $request->fullUrl();
-        $this->cacheKey = Prerender::cacheKey($this->fullUrl);
 
         if (
             $cachedResponse = Prerender::getCachedResponse($this->fullUrl)
@@ -120,7 +118,6 @@ class PrerenderMiddleware
         (new RecordCrawlerVisit(
             $this->fullUrl,
             $this->status, // our status
-            $this->cacheKey, // used to get
             $this->httpStatusCode, // http status code
             $this->matchingUserAgent
         ))->handle();

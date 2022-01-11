@@ -8,8 +8,7 @@ use Tsekka\Prerender\Models\CrawlerVisit;
 class PrerenderedPage extends Model
 {
     protected $fillable = [
-        'url',
-        'cache_key',
+        'url'
     ];
 
     protected $casts = [
@@ -22,4 +21,8 @@ class PrerenderedPage extends Model
         return $this->HasMany(CrawlerVisit::class);
     }
 
+    public function getCacheKeyAttribute()
+    {
+        return 'prerender-' . $this->id;
+    }
 }
