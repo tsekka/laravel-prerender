@@ -18,17 +18,18 @@ class CachePagesCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'prerender:cache {--force}';
+    protected $signature = 'prerender:cache {--force} {url?}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Cache all prerendered pages';
+    protected $description = 'Cache prerendered pages. Supplu argument `url` to cache specific url, otherwise all defined pages will be prerendered and cached.';
 
     private array $unexpiredPrerenderedUrls = [];
     private bool $force;
+    private ?string $url;
     private bool $runServer;
     private $process;
     private PrerenderCacheLog $log;
@@ -45,7 +46,9 @@ class CachePagesCommand extends Command
             throw new \Exception('Please enable cache.');
         }
 
+        $this->url = $this->argument('url');
         $this->force = $this->option('force');
+    
         $this->runServer = config('prerender.run_local_server');
         $this->log = new PrerenderCacheLog();
         $this->unexpiredPrerenderedUrls =
@@ -117,6 +120,10 @@ class CachePagesCommand extends Command
      */
     private function urls(): array
     {
+        if ($this->url) {
+            return [$this->url];
+        }
+
         $class = config('prerender.cacheable_urls')[0];
         $method = config('prerender.cacheable_urls')[1];
         return (new $class)->{$method}();
