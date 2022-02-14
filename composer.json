@@ -20,7 +20,7 @@
     ],
     "require": {
         "php": ">=8.0",
-        "illuminate/support": "~8",
+        "illuminate/support": "~8|~9",
         "guzzlehttp/guzzle": "^7.0",
         "symfony/psr-http-message-bridge": "^2.0",
         "chrome-php/chrome": "^1.2"
