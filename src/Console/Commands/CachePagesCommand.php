@@ -29,10 +29,11 @@ class CachePagesCommand extends Command
 
     private array $unexpiredPrerenderedUrls = [];
     private bool $force;
+    private bool $shouldLog;
     private ?string $url;
     private bool $runServer;
     private $process;
-    private PrerenderCacheLog $log;
+    private PrerenderCacheLog|null $log = null;
 
     /**
      * Execute the console command.
@@ -48,9 +49,9 @@ class CachePagesCommand extends Command
 
         $this->url = $this->argument('url');
         $this->force = $this->option('force');
-    
+        $this->shouldLog = $this->option('log');
+
         $this->runServer = config('prerender.run_local_server');
-        $this->log = new PrerenderCacheLog();
         $this->unexpiredPrerenderedUrls =
             PrerenderedPage::where(
                 'updated_at',
@@ -282,6 +283,8 @@ class CachePagesCommand extends Command
      */
     private function logStatus(string $status): void
     {
+        if (!$this->shouldLog) return;
+        if ($this->log === null) $this->log = new PrerenderCacheLog();
         $this->log->status = $status;
         $this->log->save();
     }
