@@ -70,6 +70,8 @@ class CachePagesCommand extends Command
         };
         $this->logStatus('STARTED');
 
+        $loggedContent = $this->shouldLog ? $this->log->content : [];
+
         foreach ($this->urls() as $fullUrl) {
             $url = str_replace(config('app.url'), '', $fullUrl);
 
@@ -81,11 +83,12 @@ class CachePagesCommand extends Command
 
             $result = $this->prerenderAndCache($fullUrl);
 
-            $loggedContent = $this->log->content;
             $loggedContent[] = [$url, $result];
 
-            $this->log->content = $loggedContent;
-            $this->log->save();
+            if ($this->shouldLog) {
+                $this->log->content = $loggedContent;
+                $this->log->save();
+            }
 
             $message = $result . " `" . $url . "`";
             in_array($result, ['CACHED', 'SKIPPED'])
@@ -102,7 +105,8 @@ class CachePagesCommand extends Command
 
         $count = count($this->log->content ?? []);
 
-        if ($count) {
+        if ($this->shouldLog) {
+        } else if ($count) {
             $message = 'Recaching completed. It took '
                 . $this->log->updated_at->diffInSeconds($this->log->created_at)
                 . ' seconds to handle '
