@@ -31,7 +31,7 @@ google-chrome-stable -version
    ```
    * run `supervisorctl stop all && supervisorctl reread && supervisorctl start all` as root user
    * Node must be installed globally to run it with supervisor.
-   * If process fails to start, try updating npm: npm install -g npm
+   * If process fails to start, try updating npm: `npm install -g npm`
 
 # Install dependencies
 `npm install`
