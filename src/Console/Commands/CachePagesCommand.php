@@ -18,7 +18,7 @@ class CachePagesCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'prerender:cache {--force} {url?}';
+    protected $signature = 'prerender:cache {--force} {--log} {url?}';
 
     /**
      * The console command description.
