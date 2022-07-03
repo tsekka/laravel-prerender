@@ -30,6 +30,8 @@ google-chrome-stable -version
    stdout_logfile=PATH_TO_DIRECTORY/log-prerender-worker.log
    ```
    * run `supervisorctl stop all && supervisorctl reread && supervisorctl start all` as root user
+   * Node must be installed globally to run it with supervisor.
+   * If process fails to start, try updating npm: npm install -g npm
 
 # Install dependencies
 `npm install`
