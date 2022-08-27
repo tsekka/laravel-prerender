@@ -11,13 +11,13 @@ sudo dpkg -i google-chrome*.deb
 
 # Check google chrome version:
 google-chrome-stable -version
-
-# If checking google chrome version gives you an error, then try:
-sudo apt --fix-broken install
-sudo apt install libnss3
-// or restart server  
-// or installing different node version.
 ```
+## If checking google chrome version gives you an error, then try:
+- `sudo apt --fix-broken install`
+- `sudo apt install libnss3`
+- or restart server  
+- or install different node version.
+
 3. *optional* Make sure the prerenderer's service keeps working even after reboot. One option is to use supervisor. Example (assuming your server has supervisor already installed):
    * In `/etc/supervisor/conf.d` create new conf file with following content:
    ```
