@@ -12,7 +12,7 @@ sudo dpkg -i google-chrome*.deb
 # Check google chrome version:
 google-chrome-stable -version
 ```
-## If checking google chrome version gives you an error, then try:
+**If checking google chrome version gives you an error, then try:**
 - `sudo apt --fix-broken install`
 - `sudo apt install libnss3`
 - or restart server  
