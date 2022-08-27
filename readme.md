@@ -102,6 +102,9 @@ Prerendering the page on-demand can be slow and it's therefore recommended to ke
     protected function schedule(Schedule $schedule)
     {
         // Daily re-cache all urls that's cache-time-to-live is expired
+         $schedule->command('prerender:cache')->dailyAt("02:00");
+         
+        // Daily re-cache all urls
          $schedule->command('prerender:cache --force')->dailyAt("02:00");
     }
 ```
