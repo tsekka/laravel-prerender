@@ -16,6 +16,10 @@ class Prerender
 
     public int|null $cacheTtl;
 
+    public bool|null $matchesCrawler = null;
+
+    public string|null $matchingUserAgent = null;
+
     public function __construct()
     {
         $this->cache = config('prerender.cache_driver')

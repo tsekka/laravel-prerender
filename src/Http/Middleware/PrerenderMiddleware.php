@@ -134,7 +134,9 @@ class PrerenderMiddleware
         $action = (new ShouldShowPrerenderedPage($request));
         $shouldShow = $action->handle();
         $this->matchingUserAgent = $action->matchingUserAgent;
-
+        app('prerender')->matchesCrawler = $shouldShow;
+        app('prerender')->matchingUserAgent = $this->matchingUserAgent;
+        
         return $shouldShow;
     }
 }
