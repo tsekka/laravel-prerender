@@ -33,6 +33,12 @@ class PrerenderServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->bootForConsole();
         }
+        
+        // Registering package commands.
+        $this->commands([
+            PruneCommand::class,
+            CachePagesCommand::class,
+        ]);
 
         $config = $this->app['config']->get('prerender');
 
@@ -80,11 +86,5 @@ class PrerenderServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../config/prerender.php' => config_path('prerender.php'),
         ], 'config');
-
-        // Registering package commands.
-        $this->commands([
-            PruneCommand::class,
-            CachePagesCommand::class,
-        ]);
     }
 }
