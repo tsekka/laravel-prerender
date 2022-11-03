@@ -95,8 +95,24 @@ You can run `php artisan prerender:cache` command to cache all pages that are de
 
 By default, the cache command only caches urls that have not been cached yet or whose cache ttl have already expired. You can run cache command with --force option (`php artisan prerender:cache --force`) to re-cache all urls.
 
-#### <a id='caching-schedule'></a> Setting up schedule to cache the pages
-Prerendering the page on-demand can be slow and it's therefore recommended to keep fresh copy of pages constantly in cache. You can do this by adding cache command to console kernel:
+#### Keeping prerendered pages up to date
+Prerendering the page on-demand can be slow and it's therefore recommended to keep fresh copy of pages constantly in cache. 
+
+##### You could set up event listener to keep the prerendered page in sync
+``` php
+    // 1. Set up event-listener
+    // 2. Inside your listener:
+    public function handle($event)
+    {
+       return \Artisan::call('prerender:cache', [
+                'url' => '/your-model-resource-url',
+                '--force' => true,
+                '--log' => false,
+        ]);
+    }
+```
+
+##### Or schedule prerendering and recaching on specified time
 ``` php
     // app/Console/Kernel.php
     protected function schedule(Schedule $schedule)
